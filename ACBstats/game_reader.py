@@ -2,7 +2,8 @@
 # -*- encoding: utf-8 -*-
 
 import requests
-from pyquery import PyQuery as pq
+from pyquery import PyQuery as Pq
+
 
 class GameReader:
 
@@ -10,12 +11,20 @@ class GameReader:
 
         self.url = url
         self.doc = self.read_url()
+        ha = self.read_game()
+        self.home = ha['home']
+        self.away = ha['away']
 
+    def __repr__(self):
+
+        repr_string = '{} {} - {} {}'.format(self.home['team'], self.home['points'],
+                                     self.away['team'], self.away['points'])
+        return repr_string
 
     def read_url(self):
 
         response = requests.get(self.url)
-        doc = pq(response.content)
+        doc = Pq(response.content)
         return doc
 
     def read_game(self):
@@ -35,5 +44,5 @@ class GameReader:
         else:
             away['victory'] = True
 
-        return home, away
+        return dict(home=home, away=away)
 
