@@ -3,33 +3,45 @@
 
 import requests
 from pyquery import PyQuery as Pq
+import pandas as pd
 
 
 class GameReader:
 
-    def __init__(self, url):
+    def __init__(self, **kwargs):
 
-        self.url = url
-        self.doc = self.read_url()
-        ha = self.read_game()
-        self.home = ha['home']
-        self.away = ha['away']
+        self.url = kwargs.get('url')
+        self.doc = kwargs.get('doc')
+        self.home = kwargs.get('home')
+        self.away = kwargs.get('away')
+        self.game_number = kwargs.get('game_number')
+        self.date = kwargs.get('date')
+        self.venue = kwargs.get('venue')
+        self.audience = kwargs.get('audience')
 
     def __repr__(self):
 
-        repr_string = '{} {} - {} {}'.format(self.home['team'], self.home['points'],
-                                     self.away['team'], self.away['points'])
-        return repr_string
+        text = ['{} {} - {} {}'.format(self.home['team'], self.home['points'],
+                                     self.away['team'], self.away['points'])]
+        text.append('Jornada {}, {}'.format(self.game_number, self.date))
+        text.append('{}, {} espectadores'.format(self.venue, self.audience))
+        return '\n'.join(text)
 
-    def read_url(self):
+    @staticmethod
+    def read_url(url):
 
-        response = requests.get(self.url)
+        response = requests.get(url)
         doc = Pq(response.content)
         return doc
 
-    def read_game(self):
+    @classmethod
+    def game_from_url(cls, url):
 
-        text = self.doc('div.titulopartidonew').text().split(' | ')
+        # Read url
+        doc = cls.read_url(url)
+
+        # Result
+        text = doc('div.titulopartidonew').text().split(' | ')
         team1 = text[0]
         vraw = text[1].split(' ')
         team2 = ' '.join(vraw[:-1])
@@ -44,5 +56,15 @@ class GameReader:
         else:
             away['victory'] = True
 
-        return dict(home=home, away=away)
+        # Date and audience
+        text = doc('tr.estnegro').text().split(' | ')
+        game_number = int(text[0][2:])
+        date = pd.to_datetime(' '.join(text[1:3]))
+
+        venue = text[3]
+        audience = int(text[4].split('Público:')[1])
+
+        return cls(url = url, doc=doc, home=home, away=away, game_number=game_number,
+                   date=date, venue=venue, audience=audience)
+
 
