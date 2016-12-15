@@ -5,4 +5,3 @@ url2 = 'http://www.acb.com/fichas/LACB61092.php'
 
 game = Gr.game_from_url(url2)
 print(game)
-

@@ -4,6 +4,7 @@
 import requests
 from pyquery import PyQuery as Pq
 import pandas as pd
+from parse import parse
 
 
 class GameReader:
@@ -60,9 +61,14 @@ class GameReader:
         text = doc('tr.estnegro').text().split(' | ')
         game_number = int(text[0][2:])
         date = pd.to_datetime(' '.join(text[1:3]))
-
         venue = text[3]
         audience = int(text[4].split('Público:')[1])
+
+        # Referees and partials
+        text = doc('tr.estnaranja').text()
+        format = 'Árb: {}, {}, {}	 	{}|{}	{}|{}	{}|{}	{}|{}'
+        p = parse(format, text)
+        print(p)
 
         return cls(url = url, doc=doc, home=home, away=away, game_number=game_number,
                    date=date, venue=venue, audience=audience)
