@@ -4,8 +4,6 @@
 import requests
 from pyquery import PyQuery as Pq
 import pandas as pd
-from parse import parse
-
 
 class GameReader:
 
@@ -19,6 +17,7 @@ class GameReader:
         self.date = kwargs.get('date')
         self.venue = kwargs.get('venue')
         self.audience = kwargs.get('audience')
+        self.referees = kwargs.get('referees')
 
     def __repr__(self):
 
@@ -26,6 +25,7 @@ class GameReader:
                                      self.away['team'], self.away['points'])]
         text.append('Jornada {}, {}'.format(self.game_number, self.date))
         text.append('{}, {} espectadores'.format(self.venue, self.audience))
+        text.append('Árbitros: {}, {}, {}'.format(self.referees[0], self.referees[1], self.referees[2]))
         return '\n'.join(text)
 
     @staticmethod
@@ -66,11 +66,11 @@ class GameReader:
 
         # Referees and partials
         text = doc('tr.estnaranja').text()
-        format = 'Árb: {}, {}, {}	 	{}|{}	{}|{}	{}|{}	{}|{}'
-        p = parse(format, text)
-        print(p)
+        delete_numbers = str.maketrans('','','1234567890|')
+        referees = text.translate(delete_numbers).replace('Árb: ', '').split(', ')
+        referees = [r.rstrip() for r in referees]
 
         return cls(url = url, doc=doc, home=home, away=away, game_number=game_number,
-                   date=date, venue=venue, audience=audience)
+                   date=date, venue=venue, audience=audience, referees=referees)
 
 
