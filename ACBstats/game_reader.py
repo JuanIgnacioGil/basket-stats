@@ -4,6 +4,7 @@
 import requests
 from pyquery import PyQuery as Pq
 import pandas as pd
+import numpy as np
 
 class GameReader:
 
@@ -18,14 +19,19 @@ class GameReader:
         self.venue = kwargs.get('venue')
         self.audience = kwargs.get('audience')
         self.referees = kwargs.get('referees')
+        self.partials = kwargs.get('partials')
 
-    def __repr__(self):
+    def summarize(self):
 
         text = ['{} {} - {} {}'.format(self.home['team'], self.home['points'],
                                      self.away['team'], self.away['points'])]
         text.append('Jornada {}, {}'.format(self.game_number, self.date))
         text.append('{}, {} espectadores'.format(self.venue, self.audience))
         text.append('Árbitros: {}, {}, {}'.format(self.referees[0], self.referees[1], self.referees[2]))
+        text.append('Parciales: {}-{}, {}-{}, {}-{}, {}-{}'.format(self.partials[0, 0], self.partials[0, 1],
+                                                                   self.partials[1, 0], self.partials[1, 1],
+                                                                   self.partials[2, 0], self.partials[2, 1],
+                                                                   self.partials[3, 0], self.partials[3, 1]))
         return '\n'.join(text)
 
     @staticmethod
@@ -64,13 +70,19 @@ class GameReader:
         venue = text[3]
         audience = int(text[4].split('Público:')[1])
 
-        # Referees and partials
+        # Referees
         text = doc('tr.estnaranja').text()
         delete_numbers = str.maketrans('','','1234567890|')
         referees = text.translate(delete_numbers).replace('Árb: ', '').split(', ')
         referees = [r.rstrip() for r in referees]
 
+        # Partials
+        delete_characters = str.maketrans('|', ' ', 'abcdefghijklmnñopqrstuvwxyz.,:áéíóúü')
+        partials = text.lower().translate(delete_characters).split(' ')
+        partials = np.array([int(p) for p in partials if p])
+        partials = np.reshape(partials,(-1, 2))
+
         return cls(url = url, doc=doc, home=home, away=away, game_number=game_number,
-                   date=date, venue=venue, audience=audience, referees=referees)
+                   date=date, venue=venue, audience=audience, referees=referees, partials=partials)
 
 
