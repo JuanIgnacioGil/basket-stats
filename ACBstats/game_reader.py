@@ -6,6 +6,7 @@ from pyquery import PyQuery as Pq
 import pandas as pd
 import numpy as np
 
+
 class GameReader:
 
     def __init__(self, **kwargs):
@@ -72,17 +73,20 @@ class GameReader:
 
         # Referees
         text = doc('tr.estnaranja').text()
-        delete_numbers = str.maketrans('','','1234567890|')
+        delete_numbers = str.maketrans('', '', '1234567890|')
         referees = text.translate(delete_numbers).replace('Árb: ', '').split(', ')
         referees = [r.rstrip() for r in referees]
-
         # Partials
         delete_characters = str.maketrans('|', ' ', 'abcdefghijklmnñopqrstuvwxyz.,:áéíóúü')
         partials = text.lower().translate(delete_characters).split(' ')
         partials = np.array([int(p) for p in partials if p])
-        partials = np.reshape(partials,(-1, 2))
+        partials = np.reshape(partials, (-1, 2))
 
-        return cls(url = url, doc=doc, home=home, away=away, game_number=game_number,
+        return cls(url=url, doc=doc, home=home, away=away, game_number=game_number,
                    date=date, venue=venue, audience=audience, referees=referees, partials=partials)
 
+    @classmethod
+    def read_statistics(cls, url):
 
+        table = pd.read_html(url, attrs={"class":"estadisticasnew"}, header=1)
+        print(table[1])
