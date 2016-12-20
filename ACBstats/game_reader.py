@@ -5,6 +5,7 @@ import requests
 from pyquery import PyQuery as Pq
 import pandas as pd
 import numpy as np
+from bs4 import BeautifulSoup
 
 
 class GameReader:
@@ -88,5 +89,13 @@ class GameReader:
     @classmethod
     def read_statistics(cls, url):
 
-        table = pd.read_html(url, attrs={"class":"estadisticasnew"}, header=1)
-        print(table[1])
+        html = pd.read_html(url, attrs={"class":"estadisticasnew"}, header=1)
+
+        table_data = dict(html[1])
+
+        names = table_data['Nombre']
+        minutes = table_data['Min']
+
+        data =  [('Name', names), ('Minutes', minutes)]
+        table = pd.DataFrame.from_items(data)
+        return(table)
