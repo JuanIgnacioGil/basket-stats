@@ -5,7 +5,6 @@ import requests
 from pyquery import PyQuery as Pq
 import pandas as pd
 import numpy as np
-from bs4 import BeautifulSoup
 
 
 class GameReader:
@@ -89,13 +88,41 @@ class GameReader:
     @classmethod
     def read_statistics(cls, url):
 
-        html = pd.read_html(url, attrs={"class":"estadisticasnew"}, header=1)
+        html = pd.read_html(url, attrs={"class": "estadisticasnew"}, header=1)
 
         table_data = dict(html[1])
 
         names = table_data['Nombre']
-        minutes = table_data['Min']
 
-        data =  [('Name', names), ('Minutes', minutes)]
+        # Separate the two teams
+        separator = names[names == 'Nombre'].index[0]
+
+        team1 = cls.make_team_table(table_data, separator, 1)
+        team2 = cls.make_team_table(table_data, separator, 2)
+
+        return team1, team2
+
+    @classmethod
+    def make_team_table(cls, table_data, separator, team):
+
+        names = cls.slice_series(table_data['Nombre'], separator, team)
+        minutes = cls.slice_series(table_data['Min'], separator, team)
+        points = cls.slice_series(table_data['P'], separator, team)
+
+        # 2 points
+        # t2raw = team['T2']
+
+        data = [('Name', names), ('Minutes', minutes), ('Points', points)]
         table = pd.DataFrame.from_items(data)
-        return(table)
+        table = table[table.Minutes.notnull()]
+        table = table[table.Name != '200:0']
+        return table
+
+    @classmethod
+    def slice_series(cls, series, separator, team):
+        if team == 1:
+            sliced = series[:separator]
+        else:
+            sliced = series[separator+1:]
+
+        return sliced

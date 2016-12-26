@@ -8,4 +8,5 @@ url3 = 'http://www.acb.com/fichas/LACB61102.php'
 #print(game.summarize())
 
 table = Gr.read_statistics(url3)
-print(table)
+print(table[0])
+print(table[1])
