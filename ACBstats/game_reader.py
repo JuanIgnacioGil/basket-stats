@@ -108,15 +108,46 @@ class GameReader:
         names = cls.slice_series(table_data['Nombre'], separator, team)
         minutes = cls.slice_series(table_data['Min'], separator, team)
         points = cls.slice_series(table_data['P'], separator, team)
+        t2raw = cls.slice_series(table_data['T2'], separator, team)
+        t3raw = cls.slice_series(table_data['T3'], separator, team)
+        t1raw = cls.slice_series(table_data['T1'], separator, team)
+        reb = cls.slice_series(table_data['D+O'], separator, team)
+        assists = cls.slice_series(table_data['A'], separator, team)
+        steals = cls.slice_series(table_data['BR'], separator, team)
+        turnovers = cls.slice_series(table_data['BP'], separator, team)
 
-        # 2 points
-        # t2raw = team['T2']
-
-        data = [('Name', names), ('Minutes', minutes), ('Points', points)]
+        data = [('Name', names), ('Time', minutes), ('Points', points), ('2p_goals', t2raw),
+                ('2p_attempts', t2raw), ('3p_goals', t3raw), ('3p_attempts', t3raw),
+                ('1p_goals', t1raw), ('1p_attempts', t1raw),
+                ('Defensive_rebounds', reb), ('Offensive_rebounds', reb), ('Assists', assists),
+                ('Steals', steals), ('Turnovers', turnovers)]
         table = pd.DataFrame.from_items(data)
-        table = table[table.Minutes.notnull()]
+        table = table[table.Time.notnull()]
         table = table[table.Name != '200:0']
+
+        # Minutes as timedeltas
+        table['Time'] = table['Time'].apply(lambda x: pd.to_timedelta(':'.join(['0', x])))
+
+        # T2
+        table['2p_attempts'] = table['2p_goals'].apply(lambda x: int(x.split('/')[1]))
+        table['2p_goals'] = table['2p_goals'].apply(lambda x: int(x.split('/')[0]))
+
+        # T3
+        table['3p_attempts'] = table['3p_goals'].apply(lambda x: int(x.split('/')[1]))
+        table['3p_goals'] = table['3p_goals'].apply(lambda x: int(x.split('/')[0]))
+
+        # T1
+        table['1p_attempts'] = table['1p_goals'].apply(lambda x: int(x.split('/')[1]))
+        table['1p_goals'] = table['1p_goals'].apply(lambda x: int(x.split('/')[0]))
+
+        # Rebounds
+        table['Defensive_rebounds'] = table['Defensive_rebounds'].apply(lambda x: int(x.split('+')[0]))
+        table['Offensive_rebounds'] = table['Offensive_rebounds'].apply(lambda x: int(x.split('+')[1]))
+
+
+
         return table
+
 
     @classmethod
     def slice_series(cls, series, separator, team):

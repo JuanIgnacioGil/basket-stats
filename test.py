@@ -7,6 +7,6 @@ url3 = 'http://www.acb.com/fichas/LACB61102.php'
 #game = Gr.game_from_url(url1)
 #print(game.summarize())
 
-table = Gr.read_statistics(url3)
+table = Gr.read_statistics(url1)
 print(table[0])
 print(table[1])
