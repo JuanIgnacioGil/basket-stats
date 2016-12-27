@@ -82,6 +82,9 @@ class GameReader:
         partials = np.array([int(p) for p in partials if p])
         partials = np.reshape(partials, (-1, 2))
 
+        #Statistics
+        stats = cls.read_statistics(url)
+
         return cls(url=url, doc=doc, home=home, away=away, game_number=game_number,
                    date=date, venue=venue, audience=audience, referees=referees, partials=partials)
 
@@ -115,12 +118,23 @@ class GameReader:
         assists = cls.slice_series(table_data['A'], separator, team)
         steals = cls.slice_series(table_data['BR'], separator, team)
         turnovers = cls.slice_series(table_data['BP'], separator, team)
+        blocks = cls.slice_series(table_data['F'], separator, team)
+        blocks_received = cls.slice_series(table_data['C.1'], separator, team)
+        dunks = cls.slice_series(table_data['M'], separator, team)
+        counterattacks = cls.slice_series(table_data['C'], separator, team)
+        fouls = cls.slice_series(table_data['C.2'], separator, team)
+        fouls_received = cls.slice_series(table_data['F.1'], separator, team)
+        plus_minus = cls.slice_series(table_data['+/-'], separator, team)
+        acb_valuation = cls.slice_series(table_data['V'], separator, team)
 
         data = [('Name', names), ('Time', minutes), ('Points', points), ('2p_goals', t2raw),
                 ('2p_attempts', t2raw), ('3p_goals', t3raw), ('3p_attempts', t3raw),
                 ('1p_goals', t1raw), ('1p_attempts', t1raw),
                 ('Defensive_rebounds', reb), ('Offensive_rebounds', reb), ('Assists', assists),
-                ('Steals', steals), ('Turnovers', turnovers)]
+                ('Steals', steals), ('Turnovers', turnovers), ('Blocks', blocks),
+                ('Blocks_received', blocks_received), ('Dunks', dunks), ('Counterattacks', counterattacks),
+                ('Fouls', fouls), ('Fouls_received', fouls_received), ('Plus_minus', plus_minus),
+                ('ACB_valuation', acb_valuation)]
         table = pd.DataFrame.from_items(data)
         table = table[table.Time.notnull()]
         table = table[table.Name != '200:0']
