@@ -56,8 +56,8 @@ class GameReader:
         points1 = int(vraw[-1])
         points2 = int(text[-1])
 
-        home = dict(team=team1, points=points1, victory=False, stats=None)
-        away = dict(team=team2, points=points2, victory=False, stats=None)
+        home = dict(team=team1, points=points1, victory=False, stats=None, coach=None)
+        away = dict(team=team2, points=points2, victory=False, stats=None, coach=None)
 
         if points1 > points2:
             home['victory'] = True
@@ -89,11 +89,13 @@ class GameReader:
         nrows = stats[0].shape[0]
         home['stats']['Team_points'] = [home['points']] * nrows
         home['stats']['Victory'] = [home['victory']] * nrows
+        home['coach'] =stats[2]
 
         away['stats'] = stats[1]
         nrows = stats[1].shape[0]
         away['stats']['Team_points'] = [away['points']] * nrows
         away['stats']['Victory'] = [away['victory']] * nrows
+        away['coach'] = stats[3]
 
         return cls(url=url, doc=doc, home=home, away=away, game_number=game_number,
                    date=date, venue=venue, audience=audience, referees=referees, partials=partials)
@@ -113,7 +115,13 @@ class GameReader:
         team1 = cls.make_team_table(table_data, separator, 1)
         team2 = cls.make_team_table(table_data, separator, 2)
 
-        return team1, team2
+        # Read the coaches
+        indices = table_data['D'][table_data['D'] == 'E'].index
+
+        coach1 = table_data['Nombre'][indices[0]]
+        coach2 = table_data['Nombre'][indices[1]]
+
+        return team1, team2, coach1, coach2
 
     @classmethod
     def make_team_table(cls, table_data, separator, team):
