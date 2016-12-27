@@ -56,8 +56,8 @@ class GameReader:
         points1 = int(vraw[-1])
         points2 = int(text[-1])
 
-        home = dict(team=team1, points=points1, victory=False)
-        away = dict(team=team2, points=points2, victory=False)
+        home = dict(team=team1, points=points1, victory=False, stats=None)
+        away = dict(team=team2, points=points2, victory=False, stats=None)
 
         if points1 > points2:
             home['victory'] = True
@@ -84,6 +84,16 @@ class GameReader:
 
         #Statistics
         stats = cls.read_statistics(url)
+
+        home['stats'] = stats[0]
+        nrows = stats[0].shape[0]
+        home['stats']['Team_points'] = [home['points']] * nrows
+        home['stats']['Victory'] = [home['victory']] * nrows
+
+        away['stats'] = stats[1]
+        nrows = stats[1].shape[0]
+        away['stats']['Team_points'] = [away['points']] * nrows
+        away['stats']['Victory'] = [away['victory']] * nrows
 
         return cls(url=url, doc=doc, home=home, away=away, game_number=game_number,
                    date=date, venue=venue, audience=audience, referees=referees, partials=partials)
@@ -158,6 +168,10 @@ class GameReader:
         table['Defensive_rebounds'] = table['Defensive_rebounds'].apply(lambda x: int(x.split('+')[0]))
         table['Offensive_rebounds'] = table['Offensive_rebounds'].apply(lambda x: int(x.split('+')[1]))
 
+        # Team points and victory
+        nrows = table.shape[0]
+        table['Team_points'] = [0] * nrows
+        table['Victory'] = [0] * nrows
 
 
         return table
