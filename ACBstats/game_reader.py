@@ -193,3 +193,11 @@ class GameReader:
             sliced = series[separator+1:]
 
         return sliced
+
+
+if __name__ == '__main__':
+    url = 'http://www.acb.com/fichas/LACB62116.php'
+    game = GameReader.game_from_url(url)
+    print(game.summarize())
+    print(game.home)
+    print(game.away['coach'])
