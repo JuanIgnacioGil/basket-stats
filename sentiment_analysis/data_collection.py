@@ -69,3 +69,38 @@ def get_best_players():
 
     return player_list
 
+
+def get_url_player_stats():
+    """
+    Gets the url for the players stats from www.basketball-reference.com
+
+    FIXME: Search for a way to automatize this
+
+
+    Returns
+    -------
+    list of str
+
+    """
+    url_player_stats_ls = [
+                        "https://www.basketball-reference.com/players/a/antetgi01/gamelog/",
+                        "https://www.basketball-reference.com/players/c/curryst01/gamelog/",
+                        "https://www.basketball-reference.com/players/d/davisan02/gamelog/",
+                        "https://www.basketball-reference.com/players/d/duranke01/gamelog/",
+                        "https://www.basketball-reference.com/players/e/embiijo01/gamelog/",
+                        "https://www.basketball-reference.com/players/h/hardeja01/gamelog/",
+                        "https://www.basketball-reference.com/players/j/jamesle01/gamelog/",
+                        "https://www.basketball-reference.com/players/l/leonaka01/gamelog/",
+                        "https://www.basketball-reference.com/players/l/lillada01/gamelog/",
+                        "https://www.basketball-reference.com/players/w/westbru01/gamelog/"
+                       ]
+    years = ["2019", "2018", "2017", "2016"]
+    url_player_stats = []
+    for i in url_player_stats_ls:
+        url_stats = []
+        for j in years:
+            url_stats.append(i+j)
+        url_player_stats.append(url_stats)
+
+    return url_player_stats
+
