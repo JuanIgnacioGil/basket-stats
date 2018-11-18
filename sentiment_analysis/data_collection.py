@@ -74,6 +74,12 @@ def get_url_player_stats():
     """
     Gets the url for the players stats from www.basketball-reference.com
 
+    Now, this part is about extracting the stats that players performed during the court.
+    We are taking stats between 2016–2019 season but here we run into a very serious issue.
+    Each URL will be different according to each player and there is no any fixed pattern for the URL.
+    Thus, the only way I come up with right now is to lists all the URL of each player.
+    After that, we time the year according to each player’s URL and get the whole URLs we need.
+
     FIXME: Search for a way to automatize this
 
 
@@ -103,4 +109,53 @@ def get_url_player_stats():
         url_player_stats.append(url_stats)
 
     return url_player_stats
+
+
+def get_one_player_stats(url_player_stats):
+    """
+    Gets stats for a single player
+
+    After generates the URLs, the send them into the following function. Here we collect the game time, game result,
+    field goals(FG), field goals attempted(FGA), and 3-point field goals(FG3).
+    Also, the reason why we have a lot of “if…else” statements is that reference.com marks the record with the
+     specific words if the player did not play the game such as “Inactive” or “Did Not Play”.
+
+
+
+    Parameters
+    ----------
+    url_player_stats
+
+    Returns
+    -------
+    list
+
+    """
+    stats_list = []
+
+    for url in url_player_stats:
+        stats = requests.get(url)
+        stats = BeautifulSoup(stats.text, "lxml")
+        game_stats = []
+
+        for table in stats.findAll("table", {"id": "pgl_basic"}):
+            for tr in table.findAll(
+                    "td",
+                    {"data-stat": ["date_game", "game_result", "reason", "fg", "fga", "fg3"]}
+            ):  # "fga", "fg3"
+                if tr.get_text() == "Inactive":
+                    game_stats.extend([None]*3)
+                elif tr.get_text() == "Did Not Dress":
+                    game_stats.extend([None]*3)
+                elif tr.get_text() == "Did Not Play":
+                    game_stats.extend([None]*3)
+                elif tr.get_text() == "Not With Team":
+                    game_stats.extend([None]*3)
+                elif tr.get_text() == "Player Suspended":
+                    game_stats.extend([None]*3)
+                else:
+                    game_stats.append(tr.get_text())
+
+    stats_list.extend(game_stats)
+    return stats_list
 
