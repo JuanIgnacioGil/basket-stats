@@ -159,3 +159,36 @@ def get_one_player_stats(url_player_stats):
     stats_list.extend(game_stats)
     return stats_list
 
+
+def generate_all_player_stats(url_player_stats):
+    """
+    Generates list of dataframes with stats
+
+    Then, we reshape the list type data into data frames. Here we also convert data types into the correct format and
+    minimize the data size through assigning the “int” type to “int16”. Recall that we are measuring the performance of
+     the players and their tweets. The performance we define is the Effective Flied Goal (eFG) and the formula
+     is (FG + 0.5 * 3P) / FGA.
+
+    Parameters
+    ----------
+    url_player_stats: list of str
+
+    Returns
+    -------
+    list of pandas.DataFrame
+
+    """
+    all_player_stats_ls = []
+    for each_player in url_player_stats:
+        player_stats = get_one_player_stats(each_player)
+        stat_df = pd.DataFrame(np.array(player_stats).reshape((len(player_stats) // 5), 5),
+                               columns=["Date", "Result", "FG", "FGA", "FG3"])
+        stat_df["Date"] = pd.to_datetime(stat_df["Date"])
+        stat_df["Result"] = pd.Series(map(lambda x: x[0], stat_df["Result"]))
+        stat_df.dropna(axis=0, how="any", inplace=True)
+        stat_df.sort_values(by='Date', inplace=True, ascending=False)
+        stat_df[["FG", "FGA", "FG3"]] = stat_df[["FG", "FGA", "FG3"]].astype("int16")
+        stat_df["eFG"] = round((stat_df["FG"] + 0.5 * stat_df["FG3"]) / stat_df["FGA"], 3)
+        all_player_stats_ls.append(stat_df)
+
+        return all_player_stats_ls
