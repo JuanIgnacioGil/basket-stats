@@ -266,15 +266,15 @@ def get_all_tweet(api, final_tw_account):
         creat_time_list = []
 
         for twt in tweepy.Cursor(api.user_timeline, id=ID, tweet_mode='extended').items(1000):
-            if twt.created_at > datetime.datetime(2016, 1, 1, 0, 0, 0):  # extract time after
+            if twt.created_at > datetime.datetime(2018, 11, 1, 0, 0, 0):  # extract time after
                 try:
                     tweet_list.append(twt.retweeted_status.full_text)
                 except AttributeError:
                     tweet_list.append(twt.full_text)
                 creat_time_list.append(twt.created_at)
 
-    all_nba_tweet.append(tweet_list)
-    all_creat_time.append(creat_time_list)
+    all_nba_tweet += tweet_list
+    all_creat_time += creat_time_list
     followers.append(twt.user.followers_count)
     friends.append(twt.user.friends_count)
     favourites.append(twt.user.favourites_count)
