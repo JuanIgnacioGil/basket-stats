@@ -192,3 +192,96 @@ def generate_all_player_stats(url_player_stats):
         all_player_stats_ls.append(stat_df)
 
         return all_player_stats_ls
+
+
+def get_twitter_accounts(player_list):
+    """
+    Get players account from basketball-reference.com
+
+    Parameters
+    ----------
+    player_list: list of str
+
+    Returns
+    -------
+    dict
+    """
+    # Extract nba player list and their twitter account from basketball-reference.com
+    url_twitterlink = "https://www.basketball-reference.com/friv/twitter.html"
+    tweets = requests.get(url_twitterlink)
+    tweet = BeautifulSoup(tweets.text, "lxml")
+    player_list2 = []
+    tw_list = []
+
+    for td in tweet.findAll("td", {"data-stat": "player"}):
+        for a in td.findAll("a"):
+            player_list2.append(a.get_text())
+
+    for td in tweet.findAll("td", {"data-stat": "twitter_id"}):
+        for a in td.findAll("a"):
+            tw_list.append(a.get_text())
+
+    # Merge the two data and match the players' twitter accout
+    tw_account = {}
+    final_tw_account = {}
+    for key, value in zip(player_list2, tw_list):
+        tw_account[key] = value
+    for p, t in tw_account.items():
+        if p in player_list:
+            final_tw_account[p] = t
+
+    return final_tw_account
+
+
+def get_all_tweet(api, final_tw_account):
+    """
+    Gets tweets from the players
+
+    The function here looks complex, but actually, it is just about getting the tweets, number of followers,
+    number of friends, number of favorites, and combining the stats of their perfamance and the players’ name into a
+    giant data frame.
+
+    Note:
+    Remember to add tweet_mode = ‘extended’ for the complete amount of characters or you only get the first 140
+    characters on each tweet. Also, only the tweepy.Cursor( ).items(1000) api can have access to more than 200 tweets.
+    The api.user_timeline(id = ID, count = 200) api has this limitation.
+
+    Parameters
+    ----------
+    api: tweepy.API
+    final_tw_account: str
+
+    Returns
+    -------
+    pandas.DataFrame
+    """
+    all_nba_tweet = []
+    all_creat_time = []
+    followers = []
+    friends = []
+    favourites = []
+
+    for ID in final_tw_account.values():
+        tweet_list = []
+        creat_time_list = []
+
+        for twt in tweepy.Cursor(api.user_timeline, id=ID, tweet_mode='extended').items(1000):
+            if twt.created_at > datetime.datetime(2016, 1, 1, 0, 0, 0):  # extract time after
+                try:
+                    tweet_list.append(twt.retweeted_status.full_text)
+                except AttributeError:
+                    tweet_list.append(twt.full_text)
+                creat_time_list.append(twt.created_at)
+
+    all_nba_tweet.append(tweet_list)
+    all_creat_time.append(creat_time_list)
+    followers.append(twt.user.followers_count)
+    friends.append(twt.user.friends_count)
+    favourites.append(twt.user.favourites_count)
+
+    df_tweet = pd.DataFrame.from_records(
+        zip(all_nba_tweet, all_creat_time, followers, friends, favourites),
+        columns=["Tweets", "Create_time", "Followers", "Friends", "Favourites"]
+    )
+
+    return df_tweet
