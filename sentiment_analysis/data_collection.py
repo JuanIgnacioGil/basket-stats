@@ -88,17 +88,18 @@ def get_url_player_stats():
     list of str
 
     """
+
     url_player_stats_ls = [
                         "https://www.basketball-reference.com/players/a/antetgi01/gamelog/",
-                        "https://www.basketball-reference.com/players/c/curryst01/gamelog/",
-                        "https://www.basketball-reference.com/players/d/davisan02/gamelog/",
-                        "https://www.basketball-reference.com/players/d/duranke01/gamelog/",
-                        "https://www.basketball-reference.com/players/e/embiijo01/gamelog/",
                         "https://www.basketball-reference.com/players/h/hardeja01/gamelog/",
-                        "https://www.basketball-reference.com/players/j/jamesle01/gamelog/",
-                        "https://www.basketball-reference.com/players/l/leonaka01/gamelog/",
+                        "https://www.basketball-reference.com/players/g/goberru01/gamelog/",
+                        "https://www.basketball-reference.com/players/g/georgpa01/gamelog/",
+                        "https://www.basketball-reference.com/players/d/duranke01/gamelog/",
+                        "https://www.basketball-reference.com/players/d/davisan02/gamelog/",
+                        "https://www.basketball-reference.com/players/j/jokicni01/gamelog/",
                         "https://www.basketball-reference.com/players/l/lillada01/gamelog/",
-                        "https://www.basketball-reference.com/players/w/westbru01/gamelog/"
+                        "https://www.basketball-reference.com/players/t/townska01/gamelog/",
+                        "https://www.basketball-reference.com/players/e/embiijo01/gamelog/"
                        ]
     years = ["2019", "2018", "2017", "2016"]
     url_player_stats = []
@@ -156,7 +157,8 @@ def get_one_player_stats(url_player_stats):
                 else:
                     game_stats.append(tr.get_text())
 
-    stats_list.extend(game_stats)
+        stats_list.extend(game_stats)
+
     return stats_list
 
 
@@ -179,6 +181,7 @@ def generate_all_player_stats(url_player_stats):
 
     """
     all_player_stats_ls = []
+
     for each_player in url_player_stats:
         player_stats = get_one_player_stats(each_player)
         stat_df = pd.DataFrame(np.array(player_stats).reshape((len(player_stats) // 5), 5),
