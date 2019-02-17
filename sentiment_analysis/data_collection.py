@@ -194,7 +194,7 @@ def generate_all_player_stats(url_player_stats):
         stat_df["eFG"] = round((stat_df["FG"] + 0.5 * stat_df["FG3"]) / stat_df["FGA"], 3)
         all_player_stats_ls.append(stat_df)
 
-        return all_player_stats_ls
+    return all_player_stats_ls
 
 
 def get_twitter_accounts(player_list):
