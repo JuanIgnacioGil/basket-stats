@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Twitter data collection
+# Twitter data cleaning
 # Original code from Yen-Chen Chou
 # https://towardsdatascience.com/sentiment-analysis-on-nba-top-players-twitter-account-part2-tweets-data-cleaning-aa2cf99519b3
 
