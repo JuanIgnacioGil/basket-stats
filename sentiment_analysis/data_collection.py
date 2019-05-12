@@ -8,13 +8,12 @@ import os
 import datetime
 import json
 import numpy as np
-import nltk
 import pandas as pd
 import requests
-import re
 import tweepy
 from bs4 import BeautifulSoup
 from tweepy import OAuthHandler
+from itertools import product
 
 DEFAULT_API_KEYS_JSON = os.path.join(os.path.expanduser("~"), '.api_keys.json')
 
@@ -96,18 +95,13 @@ def get_url_player_stats():
                         "https://www.basketball-reference.com/players/g/georgpa01/gamelog/",
                         "https://www.basketball-reference.com/players/d/duranke01/gamelog/",
                         "https://www.basketball-reference.com/players/d/davisan02/gamelog/",
-                        "https://www.basketball-reference.com/players/j/jokicni01/gamelog/",
                         "https://www.basketball-reference.com/players/l/lillada01/gamelog/",
                         "https://www.basketball-reference.com/players/t/townska01/gamelog/",
-                        "https://www.basketball-reference.com/players/e/embiijo01/gamelog/"
+                        "https://www.basketball-reference.com/players/e/embiijo01/gamelog/",
+                        "https://www.basketball-reference.com/players/c/capelca01/gamelog/"
                        ]
     years = ["2019", "2018", "2017", "2016"]
-    url_player_stats = []
-    for i in url_player_stats_ls:
-        url_stats = []
-        for j in years:
-            url_stats.append(i+j)
-        url_player_stats.append(url_stats)
+    url_player_stats = [[player_url + y for y in years] for player_url in url_player_stats_ls]
 
     return url_player_stats
 
